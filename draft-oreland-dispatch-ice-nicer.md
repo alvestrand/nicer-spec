@@ -1,7 +1,7 @@
 ---
 title: NICER - a better usage profile on ICE
 abbrev: NICER
-docname: draft-oreland-dispatch-ice-nicer
+docname: draft-oreland-dispatch-ice-nicer-latest
 category: info
 
 ipr: trust200902
