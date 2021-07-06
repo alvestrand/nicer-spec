@@ -63,12 +63,13 @@ What media should the call use while it is progressing through these scenarios?
 
 # Traditional ICE
 
-The traditional (RFC 8863) version of ICE can be briefly described as:
-Generate a large number of candidate pairs
-Try them in order until one of them works
-Start using the working one (ICE controller decides)
-Throw away all the other ones
-When the chosen pair breaks, do an ICE restart and start over
+The traditional ({{RFC8863}}) version of ICE can be briefly described as:
+
+  * Generate a large number of candidate pairs
+  * Try them in order until one of them works
+  * Start using the working one (ICE controller decides)
+  * Throw away all the other ones
+  * When the chosen pair breaks, do an ICE restart and start over
 
 There are extensions specified to this model; one of particular interest is Trickle ICE (RFC 8838), which allows adding more candidates after initialization, forming new sets of candidate pairs without an ICE restart.
 
@@ -76,24 +77,39 @@ There are extensions specified to this model; one of particular interest is Tric
 
 The idea behind NICER is that rather than keeping a single candidate pair up, the ICE controller will form a list of candidate pairs it considers “potentially viable”. The ICE controller will perform STUN Pings (bind requests) on these pairs to keep them alive and get some metrics on quality (RTT, packet loss).
 
-When the ICE controller decides that one of these pairs is doing better than the currently active candidate pair, it will switch the active pair to this pair, and relegate the old pair to the “alternate” pool, informing the other party through a <what was this message called>.
+When the ICE controller decides that one of these pairs is doing better than the
+currently active candidate pair, it will switch the active pair to this pair,
+and relegate the old pair to the “alternate” pool, informing the other party
+through a BIND request with the "nominated" flag set.
 
-The ICE controller will still discard candidate pairs that never started working, and candidate pairs that have a high likelihood of being duplicates of other candidate pairs in the pool.
+The ICE controller will still discard candidate pairs that never started
+working, and candidate pairs that have a high likelihood of being duplicates of
+other candidate pairs in the pool.
 
-When new network interfaces come up, the ICE controller will use trickle-ICE to communicate with the other party and form new sets of candidate pairs; when interfaces go down, the ICE controller will switch to a still-working interface at once; ICE restart will only happen once all previously usable connections have failed.
+When new network interfaces come up, the ICE controller will use trickle-ICE to
+communicate with the other party and form new sets of candidate pairs; when
+interfaces go down, the ICE controller will switch to a still-working interface
+at once; ICE restart will only happen once all previously usable connections
+have failed.
 
-It follows from the description above that NICER may need to add candidates at any time; the simplest approach compatible with standard ICE is to never send end-of-candidates, but more subtle approaches should be possible.
+It follows from the description above that NICER may need to add candidates at
+any time; the simplest approach compatible with standard ICE is to never send
+end-of-candidates, but more subtle approaches should be possible.
 
 # Standardization requirements
 
-Most of the adaptations needed for NICER are within the ICE controller, and don’t need to be standardized. However, there are a few parts that affect messages on the wire, and these call for some standardization effort - either by pushing through existing proposals that cover the need, or by standardizing new features.
+Most of the adaptations needed for NICER are within the ICE controller, and
+don’t need to be standardized. However, there are a few parts that affect
+messages on the wire, and these call for some standardization effort - either by
+pushing through existing proposals that cover the need, or by standardizing new
+features.
 
 These are:
 
-Trickle ICE [RFC 8838]
-Continuous renomination
+   * Trickle ICE {{RFC8838}}
+   * Continuous renomination
 
-Continuous renomination means that for some subset of candidate pairs not selected, rather than discarding them as mandated by RFC 8863 section 8.3, they will be retained and be made available for selection by sending a check with the USE-CANDIDATE attribute on that candidate pair. One writeup for an extension that would permit this was draft-thatcher-ice-renomination (expired I-D).
+Continuous renomination means that for some subset of candidate pairs not selected, rather than discarding them as mandated by {{RFC8863}} section 8.3, they will be retained and be made available for selection by sending a check with the USE-CANDIDATE attribute on that candidate pair. One writeup for an extension that would permit this was draft-thatcher-ice-renomination (expired I-D).
 
 With these features in place, NICER should be deployable against any system that impelments these features.
 
